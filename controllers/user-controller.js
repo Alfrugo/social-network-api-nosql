@@ -49,4 +49,39 @@ const userController = {
             .catch(err => res.status(400).json(err))
     },
 
+    // ADD FRIENDS
+    addFriend({params, body}, res){
+        User.findByIdAndUpdate(
+            {_id: params.userId},
+            {$push: {friends: {_id: params.friendId}}},
+            {new: true}
+        )
+        .then(dbUserData => {
+            if (!dbUserData) {
+                res.status(404).json({ message: 'Cannot add friend to user because we cannot find the user ID' });
+                return;
+            }
+            res.json(dbUserData);          
+        })
+        .catch(err => res.json(err));
+    },
+
+    removeFriend ({ params }, res) {
+        User.findOneAndUpdate(
+            {_id: params.userId},
+            {$pull: {friends: { _id: params.friendId}}},
+            {new: true}
+        )
+        .then(dbUserData => {
+            if (!dbUserData) {
+                res.status(404).json({ message: 'Cannot remove friend to user because we cannot find the user ID' });
+                return;
+            }
+            res.json(dbUserData);          
+        })
+        .catch(err => res.json(err));
+    }
+
 }
+
+module.exports = userController;
