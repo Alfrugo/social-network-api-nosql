@@ -33,7 +33,7 @@ const userController = {
     createUser({body}, res){
         User.create(body)
             .then(dbUserData => res.json(dbUserData))
-            .catch(err = res.status(400).json(err)) 
+            .catch(err => res.status(400).json(err)) 
     },
 
     // UPDATE USER
@@ -67,7 +67,7 @@ const userController = {
     addFriend({params, body}, res){
         User.findByIdAndUpdate(
             {_id: params.userId},
-            {$push: {friends: {_id: params.friendId}}},
+            {$addToSet: {friends: {_id: params.friendId}}},
             {new: true}
         )
         .then(dbUserData => {
@@ -80,10 +80,10 @@ const userController = {
         .catch(err => res.json(err));
     },
 
-    removeFriend ({ params }, res) {
+    removeFriend (req, res) {
         User.findOneAndUpdate(
-            {_id: params.userId},
-            {$pull: {friends: { _id: params.friendId}}},
+            {_id: req.params.userId},
+            {$pull: {friends: req.params.friendId}},
             {new: true}
         )
         .then(dbUserData => {
@@ -91,6 +91,9 @@ const userController = {
                 res.status(404).json({ message: 'Cannot remove friend to user because we cannot find the user ID' });
                 return;
             }
+            console.log('made it this far')
+            console.log(dbUserData)
+
             res.json(dbUserData);          
         })
         .catch(err => res.json(err));
